@@ -27,8 +27,6 @@ RUN opam install . --deps-only --assume-depexts --yes
 COPY main.ml ./
 
 # eval $(opam config env) adds dune to PATH
-RUN eval $(opam config env) >> /etc/.bashrc
+RUN eval $(opam config env) && dune build main.exe
 
-RUN dune build main.exe
-
-CMD [ "dune" "exec" "project_name"]
+CMD [ "dune" "exec" "project_name" ]
