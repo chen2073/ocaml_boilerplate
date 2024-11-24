@@ -1,7 +1,14 @@
 services:
   app:
-    build: .
+    build: 
+      context: .
+      target: builder
     command: bash -c 'eval $(opam config env) && dune exec project_name'
+    working_dir: /app
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
 
   # dev environment
   dev:
