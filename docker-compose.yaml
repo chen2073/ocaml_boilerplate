@@ -2,3 +2,16 @@ services:
   app:
     build: .
     command: bash -c 'eval $(opam config env) && dune exec project_name'
+
+  # dev environment
+  dev:
+    build:
+      context: .
+      target: dev
+    command: tail -f /dev/null
+    working_dir: /app
+    volumes:
+      - ./dune:/app/dune
+      - ./dune-project:/app/dune-project
+      - ./project_name.opam:/app/project_name.opam
+      - ./main.ml:/app/main.ml

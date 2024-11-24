@@ -30,3 +30,14 @@ COPY main.ml ./
 RUN eval $(opam config env) && dune build main.exe
 
 CMD [ "dune" "exec" "project_name" ]
+
+FROM base as dev
+
+RUN apt-get install -y opam
+
+# --disable-sandboxing is needed due to bwrap: No permissions to creating new namespace error
+RUN opam init --bare -a -y --disable-sandboxing && opam update
+
+RUN opam switch create default ocaml-base-compiler.5.2.0
+
+RUN opam install dune -y

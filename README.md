@@ -20,5 +20,12 @@ Helps you get started building ocaml program quickly for beginners
 2. run `docker compose build`. (Make sure dune, dune-project, {you_project_name}.opam all reflect the latest dependencies, dune build updates .opam file)
 3. run `docker compose up` or `docker compose run --rm app`
 
+## Run dev environment in Docker
+1. run `docker compose run --rm dev bash`
+2. run `opam install .` interactively
+3. run `eval $(opam env)`
+3. run `dune build`
+4. run `dune exec {your_project_name}`
+
 ## Editor setup
 vscode - OCaml Platform extension
