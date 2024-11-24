@@ -1,34 +1,34 @@
-FROM alpine:3.20 AS base
+# syntax=docker/dockerfile:1
+
+FROM ubuntu:24.10 AS base
+
+RUN apt-get update \
+    && apt-get upgrade -y
 
 FROM base AS builder
 
-RUN apk update && \
-    apk upgrade && \
-    apk add -i linux-headers build-base opam
+RUN apt-get install -y opam
 
-RUN opam init --bare -a -y --disable-sandboxing \
-    && opam update
+# --disable-sandboxing is needed due to bwrap: No permissions to creating new namespace error
+RUN opam init --bare -a -y --disable-sandboxing && opam update
 
 RUN opam switch create default ocaml-base-compiler.5.2.0
-
-RUN opam install -y dune
 
 WORKDIR /app
 
 COPY dune-project dune  *.opam ./
 
-RUN opam install . --deps-only -y
+# install opam packages' system dependencies
+RUN opam install . --depext-only --yes --confirm-level=unsafe-yes
+
+# install project opam packages
+RUN opam install . --deps-only --assume-depexts --yes
 
 COPY main.ml ./
 
-# eval $(opam config env) applies dune to PATH but it only persists in a single RUN layer
-RUN eval $(opam config env) \
-    && dune build main.exe
+# eval $(opam config env) adds dune to PATH
+RUN eval $(opam config env) >> /etc/.bashrc
 
-FROM base AS runner
+RUN dune build main.exe
 
-WORKDIR /app
-
-COPY --from=builder /app/_build/default/main.exe /app
-
-CMD [ "/app/main.exe" ]
+CMD [ "dune" "exec" "project_name"]

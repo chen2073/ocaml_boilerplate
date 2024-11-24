@@ -1,4 +1,4 @@
 (executable
  (name main)
  (public_name project_name)
- (libraries eio_main))
+ (libraries eio_main ezcurl))
