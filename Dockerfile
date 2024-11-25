@@ -2,10 +2,10 @@
 
 FROM ubuntu:24.10 AS base
 
+FROM base AS opam
+
 RUN apt-get update \
     && apt-get upgrade -y
-
-FROM base AS builder
 
 RUN apt-get install -y opam
 
@@ -13,6 +13,8 @@ RUN apt-get install -y opam
 RUN opam init --bare -a -y --disable-sandboxing && opam update
 
 RUN opam switch create default ocaml-base-compiler.5.2.0
+
+FROM opam AS builder
 
 WORKDIR /app
 
@@ -26,18 +28,11 @@ RUN opam install . --deps-only --assume-depexts --yes
 
 COPY main.ml ./
 
-# eval $(opam config env) adds dune to PATH
-RUN eval $(opam config env) && dune build main.exe
+# opam exec is needed since dune is added to PATH
+RUN opam exec dune build main.exe
 
-CMD [ "dune" "exec" "project_name" ]
+CMD [ "opam" "exec" "dune" "exec" "project_name" ]
 
-FROM base as dev
-
-RUN apt-get install -y opam
-
-# --disable-sandboxing is needed due to bwrap: No permissions to creating new namespace error
-RUN opam init --bare -a -y --disable-sandboxing && opam update
-
-RUN opam switch create default ocaml-base-compiler.5.2.0
+FROM opam AS dev
 
 RUN opam install dune -y

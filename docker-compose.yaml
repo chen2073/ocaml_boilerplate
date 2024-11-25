@@ -3,7 +3,7 @@ services:
     build: 
       context: .
       target: builder
-    command: bash -c 'eval $(opam config env) && dune exec project_name'
+    command: opam exec dune exec project_name
     working_dir: /app
     deploy:
       resources:
