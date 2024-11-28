@@ -1,8 +1,18 @@
 # syntax=docker/dockerfile:1
 
-FROM ubuntu:24.10 AS base
+# ubuntu os version
+ARG OS_VERSION=24.10
+# ocaml compiler version
+ARG COMPILER_VERSION=ocaml-base-compiler.5.2.0
+# opam switch name
+ARG OPAM_SWITCH=default
+
+FROM ubuntu:${OS_VERSION} AS base
 
 FROM base AS opam
+
+ARG COMPILER_VERSION
+ARG OPAM_SWITCH
 
 RUN apt-get update \
     && apt-get upgrade -y
@@ -12,7 +22,7 @@ RUN apt-get install -y opam
 # --disable-sandboxing is needed due to bwrap: No permissions to creating new namespace error
 RUN opam init --bare -a -y --disable-sandboxing && opam update
 
-RUN opam switch create default ocaml-base-compiler.5.2.0
+RUN opam switch create ${OPAM_SWITCH} ${COMPILER_VERSION}
 
 FROM opam AS builder
 
